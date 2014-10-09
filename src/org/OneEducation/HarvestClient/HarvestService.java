@@ -16,14 +16,17 @@ import android.app.Service;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningTaskInfo;
 
+import org.OneEducation.HarvestClient.HarvestJournal;
 
 public class HarvestService extends Service {
 
     private Integer MAX_TASKS = 1; 
+    private HarvestJournal journal;
 
     @Override
     public void onCreate() {
         Log.i("HarvestService", "is created.");
+        journal = new HarvestJournal();
     }
 
     @Override
@@ -67,7 +70,7 @@ public class HarvestService extends Service {
             Log.e("HarvestService", error);
         }
 
-        String message = String.format("%d : %s (%s)", task.id, applicationLabel, packageName);
-        Log.i("HarvestService", message);
+        journal.store(packageName, task.id);
+        journal.display(); 
     }
 }
