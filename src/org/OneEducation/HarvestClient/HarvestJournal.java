@@ -12,8 +12,6 @@ import android.util.Log;
 
 class HarvestJournalEntry {
 
-    private Integer INTERVAL = 30;
-
     public String packageName;
     public Long timestamp;
     public Integer count;
@@ -24,8 +22,8 @@ class HarvestJournalEntry {
         count = 0;
     }
 
-    public void increment() {
-        count += INTERVAL;
+    public void increment(Long delta) {
+        count += delta;
     }
 }
 
@@ -33,10 +31,12 @@ class HarvestJournalEntry {
 public class HarvestJournal {
 
     public HashMap data;
+    private Long lastStored;
 
     HarvestJournal() {
         Log.i("HarvestService", "creating journal.");
         data = new HashMap();
+        lastStored = System.currentTimeMillis() / 1000L;
     }
 
     public void store(String packageName, Integer id) {
@@ -57,7 +57,10 @@ public class HarvestJournal {
             entry = new HarvestJournalEntry(packageName);
         }
 
-        entry.increment();
+        Long now = System.currentTimeMillis() / 1000L;
+        Long delta = now - lastStored;
+        entry.increment(delta);
+
         sessions.put(id, entry);
     }
 
