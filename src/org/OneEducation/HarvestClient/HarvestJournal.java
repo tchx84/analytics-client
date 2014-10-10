@@ -8,8 +8,10 @@ import java.util.HashMap;
 import java.util.Set;
 
 import android.util.Log;
+import android.content.Context;
 
 import org.OneEducation.HarvestClient.HarvestSettings;
+import org.OneEducation.HarvestClient.HarvestStore;
 
 class HarvestJournalEntry {
 
@@ -31,13 +33,19 @@ class HarvestJournalEntry {
 
 public class HarvestJournal {
 
-    public HashMap data;
+    private HashMap data;
     private Long lastStored;
 
-    HarvestJournal() {
+    private HarvestStore storage;
+    private Long lastPersisted;
+
+    public HarvestJournal(Context context) {
         Log.i("HarvestService", "creating journal.");
         data = new HashMap();
         lastStored = System.currentTimeMillis() / 1000L;
+
+        storage = new HarvestStore(context);
+        lastPersisted = lastStored;
     }
 
     public void store(String packageName, Integer id) {
@@ -66,6 +74,24 @@ public class HarvestJournal {
 
         entry.increment(delta);
         sessions.put(id, entry);
+
+        if ((now - lastPersisted) > HarvestSettings.PERSIST) {
+            dump();
+            lastPersisted = now;
+        }
+    }
+
+    public void dump() {
+        Log.i("HarvestClient", "dumping data.");
+        for (String packageName : (Set<String>) data.keySet()) {
+            HashMap sessions = (HashMap) data.get(packageName);
+
+            for (Integer id : (Set<Integer>) sessions.keySet()) {
+                HarvestJournalEntry entry = (HarvestJournalEntry) sessions.get(id);
+                storage.persist(entry.timestamp, packageName, entry.count);
+            }
+        }
+        storage.retrieve();
     }
 
     public void display() {

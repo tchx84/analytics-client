@@ -26,7 +26,7 @@ public class HarvestService extends Service {
     @Override
     public void onCreate() {
         Log.i("HarvestService", "is created.");
-        journal = new HarvestJournal();
+        journal = new HarvestJournal(this);
     }
 
     @Override
