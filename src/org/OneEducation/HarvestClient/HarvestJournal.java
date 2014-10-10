@@ -9,17 +9,18 @@ import java.util.Set;
 
 import android.util.Log;
 
+import org.OneEducation.HarvestClient.HarvestSettings;
 
 class HarvestJournalEntry {
 
     public String packageName;
     public Long timestamp;
-    public Integer count;
+    public Long count;
 
     HarvestJournalEntry (String _packageName) {
         packageName = _packageName;
         timestamp = System.currentTimeMillis() / 1000L;
-        count = 0;
+        count = 0L;
     }
 
     public void increment(Long delta) {
@@ -59,8 +60,11 @@ public class HarvestJournal {
 
         Long now = System.currentTimeMillis() / 1000L;
         Long delta = now - lastStored;
-        entry.increment(delta);
+        if (delta > HarvestSettings.INTERVAL) {
+            delta = HarvestSettings.INTERVAL;
+        }
 
+        entry.increment(delta);
         sessions.put(id, entry);
     }
 
