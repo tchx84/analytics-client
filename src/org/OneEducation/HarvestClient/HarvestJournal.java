@@ -6,6 +6,7 @@ import java.lang.String;
 import java.lang.System;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.List;
 
 import android.util.Log;
 import android.content.Context;
@@ -91,7 +92,6 @@ public class HarvestJournal {
                 storage.persist(entry.timestamp, packageName, entry.count);
             }
         }
-        storage.retrieve();
     }
 
     public void display() {
@@ -104,5 +104,10 @@ public class HarvestJournal {
                 Log.i("HarvestService", message);
             }
         }
+    }
+
+    public List<List<String>> getData() {
+        dump();
+        return storage.retrieve();
     }
 }

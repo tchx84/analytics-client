@@ -1,6 +1,7 @@
 package org.OneEducation.HarvestClient;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.lang.Long;
 import java.lang.Integer;
 import java.lang.String;
@@ -67,16 +68,24 @@ public class HarvestStore extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void retrieve() {
+    public List<List<String>> retrieve() {
+        Log.i("HarvestClient", "fetching all entries.");
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(QUERY_SELECT, null);
 
-        Log.i("HarvestClient", "fetching all entries.");
+        List<List<String>> entries = new ArrayList<List<String>>();
+
         if (cursor.moveToFirst()) {
             do {
-                String message = String.format("%s, %s, %s", cursor.getString(0), cursor.getString(1), cursor.getString(2));
-                Log.i("HarvestClient", message);
+                List<String> entry = new ArrayList<String>();
+                entry.add(cursor.getString(0));
+                entry.add(cursor.getString(1));
+                entry.add(cursor.getString(2));
+
+                entries.add(entry);
             } while (cursor.moveToNext());
         }
+
+        return entries;
     }
 }
