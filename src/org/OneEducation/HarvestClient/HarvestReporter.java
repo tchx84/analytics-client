@@ -20,7 +20,10 @@
 package org.OneEducation.HarvestClient;
 
 import java.util.List;
+import java.lang.Long;
 import java.lang.String;
+import java.lang.Boolean;
+import java.lang.System;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -38,8 +41,19 @@ import org.OneEducation.HarvestClient.HarvestSettings;
 
 public class HarvestReporter {
 
+    private Long lastReported;
+
     public HarvestReporter(){
         Log.i("HarvestClient", "creating reporter.");
+        lastReported = System.currentTimeMillis() / 1000L;
+    }
+
+    public Boolean canReport() {
+        Long now = System.currentTimeMillis() / 1000L;
+        if ((now - lastReported) > HarvestSettings.REPORT) {
+            return true;
+        }
+        return false;
     }
 
     public void report(List<List<String>> data){       
@@ -67,6 +81,9 @@ public class HarvestReporter {
        }
        catch (IOException e) {
            Log.e("HarvestClient", "exception", e);
+           return;
        }
+
+       lastReported = System.currentTimeMillis() / 1000L;
     }
 }

@@ -22,7 +22,6 @@ package org.OneEducation.HarvestClient;
 import java.util.List;
 import java.lang.Integer;
 import java.lang.String;
-import java.lang.System;
 
 import android.util.Log;
 import android.os.IBinder;
@@ -37,23 +36,19 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.RunningTaskInfo;
 
 import org.OneEducation.HarvestClient.HarvestJournal;
-import org.OneEducation.HarvestClient.HarvestSettings;
+
 
 public class HarvestService extends Service {
 
     private Integer MAX_TASKS = 1; 
     private HarvestJournal journal;
-
     private HarvestReporter reporter;
-    private Long lastReported;
 
     @Override
     public void onCreate() {
         Log.i("HarvestService", "is created.");
         journal = new HarvestJournal(this);
-
         reporter = new HarvestReporter();
-        lastReported = System.currentTimeMillis() / 1000L;
     }
 
     @Override
@@ -104,12 +99,9 @@ public class HarvestService extends Service {
     }
 
     private void reportActivity() {
-        Long now = System.currentTimeMillis() / 1000L;
-
-        if ((now - lastReported) > HarvestSettings.REPORT) {
+        if (reporter.canReport()) {
             List<List<String>> data = journal.getData();
             reporter.report(data);
-            lastReported = now;
         }
     }
 }
