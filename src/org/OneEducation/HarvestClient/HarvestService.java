@@ -72,6 +72,7 @@ public class HarvestService extends Service {
     @Override
     public void onDestroy() {
         Log.i("HarvestService", "is destroyed.");
+        journal.dump();
     }
 
     private void processActivity() {
