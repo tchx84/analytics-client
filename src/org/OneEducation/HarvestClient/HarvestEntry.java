@@ -20,14 +20,23 @@
 package org.OneEducation.HarvestClient;
 
 import java.lang.Long;
+import java.lang.String;
+import java.lang.System;
 
 
-class HarvestSettings {
+class HarvestEntry {
 
-   static final Long INTERVAL = 30L;
-   static final Long PERSIST = 60L;
-   static final Long REPORT = 90L;
-   static final String SERVER = "http://192.168.0.12:8887/analytics/report";
-   static final String KEY = "analytics";
+    public String packageName;
+    public Long started;
+    public Long duration;
 
+    HarvestEntry (String _packageName) {
+        packageName = _packageName;
+        started = System.currentTimeMillis() / 1000L;
+        duration = 0L;
+    }
+
+    public void increment(Long delta) {
+        duration += delta;
+    }
 }

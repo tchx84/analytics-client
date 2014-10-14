@@ -19,7 +19,11 @@
 
 package org.OneEducation.HarvestClient;
 
+import java.util.Set;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Collection;
+import java.util.ArrayList;
 import java.lang.Long;
 import java.lang.String;
 import java.lang.Boolean;
@@ -31,13 +35,15 @@ import java.io.UnsupportedEncodingException;
 import android.util.Log;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONException;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import org.OneEducation.HarvestClient.HarvestSettings;
-
+import org.OneEducation.HarvestClient.HarvestEntry;
 
 public class HarvestReporter {
 
@@ -56,8 +62,10 @@ public class HarvestReporter {
         return false;
     }
 
-    public void report(List<List<String>> data){       
-       JSONArray json = new JSONArray(data);
+    public void report(List<HarvestEntry> entries){
+       Log.i("HarvestService", "reporting");
+
+       JSONArray json = getJSONReport(entries);
 
        StringEntity string;
        try {
@@ -71,6 +79,7 @@ public class HarvestReporter {
        HttpPost request = new HttpPost(HarvestSettings.SERVER);
        request.setEntity(string);
        request.setHeader("Accept", "application/json");
+       request.setHeader("x-api-key", HarvestSettings.KEY);
        request.setHeader("Content-type", "application/json");
 
        BasicResponseHandler responseHandler = new BasicResponseHandler();
@@ -85,5 +94,40 @@ public class HarvestReporter {
        }
 
        lastReported = System.currentTimeMillis() / 1000L;
+       Log.i("HarvestService", "successfully reported");
+    }
+
+    private String getUID() {
+        return "";
+    }
+
+    private JSONArray getJSONReport(List<HarvestEntry> entries) {
+        JSONObject map = new JSONObject();
+
+        for (HarvestEntry entry : (List<HarvestEntry>) entries) {
+            JSONArray sessions = (JSONArray) map.opt(entry.packageName);
+
+            if (sessions == null) {
+                sessions = new JSONArray();
+
+                try {
+                    map.put(entry.packageName, sessions);
+                } catch (JSONException e) {
+                    return null;
+                }
+            } 
+
+            JSONArray session = new JSONArray();
+            session.put(entry.started);
+            session.put(entry.duration);
+
+            sessions.put(session);
+        }
+
+        JSONArray array = new JSONArray();
+        array.put(getUID());
+        array.put(map);
+
+        return array;
     }
 }

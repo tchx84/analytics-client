@@ -26,30 +26,14 @@ import java.lang.System;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.List;
+import java.util.ArrayList;
 
 import android.util.Log;
 import android.content.Context;
 
 import org.OneEducation.HarvestClient.HarvestSettings;
 import org.OneEducation.HarvestClient.HarvestStore;
-
-class HarvestJournalEntry {
-
-    public String packageName;
-    public Long timestamp;
-    public Long count;
-
-    HarvestJournalEntry (String _packageName) {
-        packageName = _packageName;
-        timestamp = System.currentTimeMillis() / 1000L;
-        count = 0L;
-    }
-
-    public void increment(Long delta) {
-        count += delta;
-    }
-}
-
+import org.OneEducation.HarvestClient.HarvestEntry;
 
 public class HarvestJournal {
 
@@ -78,12 +62,12 @@ public class HarvestJournal {
             data.put(packageName, sessions);
         }
 
-        HarvestJournalEntry entry;
+        HarvestEntry entry;
 
         if (sessions.containsKey(id)) {
-            entry = (HarvestJournalEntry) sessions.get(id);
+            entry = (HarvestEntry) sessions.get(id);
         } else {
-            entry = new HarvestJournalEntry(packageName);
+            entry = new HarvestEntry(packageName);
         }
 
         Long now = System.currentTimeMillis() / 1000L;
@@ -102,30 +86,17 @@ public class HarvestJournal {
     }
 
     public void dump() {
-        Log.i("HarvestClient", "dumping data.");
         for (String packageName : (Set<String>) data.keySet()) {
             HashMap sessions = (HashMap) data.get(packageName);
 
             for (Integer id : (Set<Integer>) sessions.keySet()) {
-                HarvestJournalEntry entry = (HarvestJournalEntry) sessions.get(id);
-                storage.persist(entry.timestamp, packageName, entry.count);
+                HarvestEntry entry = (HarvestEntry) sessions.get(id);
+                storage.persist(entry);
             }
         }
     }
 
-    public void display() {
-        for (String packageName : (Set<String>) data.keySet()) {
-            HashMap sessions = (HashMap) data.get(packageName);
-
-            for (Integer id : (Set<Integer>) sessions.keySet()) {
-                HarvestJournalEntry entry = (HarvestJournalEntry) sessions.get(id);
-                String message = String.format("%s (%d): %d for %d", packageName, id, entry.timestamp, entry.count);
-                Log.i("HarvestService", message);
-            }
-        }
-    }
-
-    public List<List<String>> getData() {
+    public List<HarvestEntry> getEntries() {
         dump();
         return storage.retrieve();
     }

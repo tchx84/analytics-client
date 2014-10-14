@@ -32,28 +32,29 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import org.OneEducation.HarvestClient.HarvestEntry;
 
 public class HarvestStore extends SQLiteOpenHelper {
 
-    private static final Integer DATABASE_VERSION = 2;
+    private static final Integer DATABASE_VERSION = 3;
 
     private static final String DATABASE_NAME = "harvest";
 
     private String QUERY_CREATE = "CREATE TABLE IF NOT EXISTS " +
                                   "entries " +
-                                  "(timestamp INTEGER, " +
-				  "package TEXT, " +
-                                  "count INTEGER, " +
-                                  "PRIMARY KEY (timestamp, package))";
+                                  "(package TEXT, " +
+				  "started INTEGER, " +
+                                  "duration INTEGER, " +
+                                  "PRIMARY KEY (package, started))";
 
     private String QUERY_DROP = "DROP TABLE IF EXISTS entries";
 
     private String QUERY_SELECT = "SELECT * FROM entries";
 
     private String TABLE_NAME = "entries";
-    private String COLUMN_TIMESTAMP = "timestamp";
     private String COLUMN_PACKAGE = "package";
-    private String COLUMN_COUNT = "count";
+    private String COLUMN_STARTED = "started";
+    private String COLUMN_DURATION = "duration";
 
     public HarvestStore(Context context){
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -61,49 +62,46 @@ public class HarvestStore extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        Log.i("HarvestClient", "creating DB");
+        Log.i("HarvestService", "creating DB");
         db.execSQL(QUERY_CREATE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        Log.i("HarvestClient", "dropping DB");
+        Log.i("HarvestService", "dropping DB");
         db.execSQL(QUERY_DROP);
         this.onCreate(db);
     }
 
-    public void persist(Long timestamp, String packageName, Long count){
-        String message = String.format("persisting: %d, %s, %d", timestamp, packageName, count);
-        Log.i("HarvestClient", message);
-
+    public void persist(HarvestEntry entry) {
+        Log.i("HarvestService", "persisting data");
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(COLUMN_TIMESTAMP, timestamp);
-        values.put(COLUMN_PACKAGE, packageName);
-        values.put(COLUMN_COUNT, count);
+        values.put(COLUMN_PACKAGE, entry.packageName);
+        values.put(COLUMN_STARTED, entry.started);
+        values.put(COLUMN_DURATION, entry.duration);
 
         db.replace(TABLE_NAME, null, values);
         db.close();
     }
 
-    public List<List<String>> retrieve() {
-        Log.i("HarvestClient", "fetching all entries.");
+    public List<HarvestEntry> retrieve() {
+        Log.i("HarvestService", "retrieving data");
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(QUERY_SELECT, null);
 
-        List<List<String>> entries = new ArrayList<List<String>>();
+        List<HarvestEntry> entries = new ArrayList<HarvestEntry>();
 
         if (cursor.moveToFirst()) {
             do {
-                List<String> entry = new ArrayList<String>();
-                entry.add(cursor.getString(0));
-                entry.add(cursor.getString(1));
-                entry.add(cursor.getString(2));
+                HarvestEntry entry = new HarvestEntry(cursor.getString(0));
+                entry.started = Long.parseLong(cursor.getString(1), 10);
+                entry.duration = Long.parseLong(cursor.getString(2), 10);
 
                 entries.add(entry);
             } while (cursor.moveToNext());
-        }
+        };
 
         return entries;
     }

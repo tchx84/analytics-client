@@ -20,6 +20,7 @@
 package org.OneEducation.HarvestClient;
 
 import java.util.List;
+import java.util.HashMap;
 import java.lang.Integer;
 import java.lang.String;
 
@@ -36,7 +37,7 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.RunningTaskInfo;
 
 import org.OneEducation.HarvestClient.HarvestJournal;
-
+import org.OneEducation.HarvestClient.HarvestEntry;
 
 public class HarvestService extends Service {
 
@@ -95,13 +96,12 @@ public class HarvestService extends Service {
         }
 
         journal.store(packageName, task.id);
-        journal.display(); 
     }
 
     private void reportActivity() {
         if (reporter.canReport()) {
-            List<List<String>> data = journal.getData();
-            reporter.report(data);
+            List<HarvestEntry> entries = journal.getEntries();
+            reporter.report(entries);
         }
     }
 }
