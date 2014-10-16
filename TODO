@@ -3,3 +3,4 @@
 - extend HarvestReporter.canReport() to include some randomness.
 - extend HarvestReporter.canReport() to consider the last time it tried to report, in order to avoid spam.
 - switch HarvestReporter.report() to use HTTPS.
+- empty persisted data after successful report.
