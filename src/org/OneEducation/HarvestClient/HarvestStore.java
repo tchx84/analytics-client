@@ -36,7 +36,7 @@ import org.OneEducation.HarvestClient.HarvestEntry;
 
 public class HarvestStore extends SQLiteOpenHelper {
 
-    private static final Integer DATABASE_VERSION = 3;
+    private static final Integer DATABASE_VERSION = 4;
 
     private static final String DATABASE_NAME = "harvest";
 
@@ -62,19 +62,19 @@ public class HarvestStore extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        Log.i("HarvestService", "creating DB");
+        Log.i("HarvestStore", "created");
         db.execSQL(QUERY_CREATE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        Log.i("HarvestService", "dropping DB");
+        Log.i("HarvestStore", "onUpgrade");
         db.execSQL(QUERY_DROP);
         this.onCreate(db);
     }
 
     public void persist(HarvestEntry entry) {
-        Log.i("HarvestService", "persisting data");
+        Log.i("HarvestStore", "persist");
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -87,7 +87,7 @@ public class HarvestStore extends SQLiteOpenHelper {
     }
 
     public List<HarvestEntry> retrieve() {
-        Log.i("HarvestService", "retrieving data");
+        Log.i("HarvestStore", "retrieve");
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(QUERY_SELECT, null);
 

@@ -44,7 +44,7 @@ public class HarvestJournal {
     private Long lastPersisted;
 
     public HarvestJournal(Context context) {
-        Log.i("HarvestService", "creating journal.");
+        Log.i("HarvestJournal", "created");
         data = new HashMap();
         lastStored = System.currentTimeMillis() / 1000L;
 
@@ -53,6 +53,7 @@ public class HarvestJournal {
     }
 
     public void store(String packageName, Integer id) {
+        Log.i("HarvestJournal", "store");
         HashMap sessions;
 
         if (data.containsKey(packageName)){
@@ -78,6 +79,7 @@ public class HarvestJournal {
 
         entry.increment(delta);
         sessions.put(id, entry);
+        Log.i("HarvestJournal", String.format("%s %d %d", entry.packageName, entry.started, entry.duration));
 
         if ((now - lastPersisted) > HarvestSettings.PERSIST) {
             dump();
@@ -86,6 +88,7 @@ public class HarvestJournal {
     }
 
     public void dump() {
+        Log.i("HarvestJournal", "dump");
         for (String packageName : (Set<String>) data.keySet()) {
             HashMap sessions = (HashMap) data.get(packageName);
 
@@ -97,6 +100,7 @@ public class HarvestJournal {
     }
 
     public List<HarvestEntry> getEntries() {
+        Log.i("HarvestJournal", "getEntries");
         dump();
         return storage.retrieve();
     }

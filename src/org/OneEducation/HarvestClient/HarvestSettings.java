@@ -27,7 +27,7 @@ class HarvestSettings {
    static final Long INTERVAL = 20L;
    static final Long PERSIST = 20L;
    static final Long REPORT = 20L;
-   static final String SERVER = "http://192.168.0.12:8887/analytics/report";
+   static final String SERVER = "http://10.0.0.4:8887/analytics/report";
    static final String KEY = "analytics";
 
 }
