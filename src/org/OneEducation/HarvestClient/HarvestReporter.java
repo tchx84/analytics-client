@@ -28,10 +28,15 @@ import java.lang.Long;
 import java.lang.String;
 import java.lang.Boolean;
 import java.lang.System;
+import java.math.BigInteger;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import android.os.Build;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -98,7 +103,24 @@ public class HarvestReporter {
     }
 
     private String getUID() {
-        return "";
+        String serial = Build.SERIAL;
+
+        MessageDigest digest = null;
+
+        try {
+            digest = MessageDigest.getInstance("SHA-1");
+        } catch (NoSuchAlgorithmException e) {
+            Log.i("HarvestReporter", "no algorithm");
+            return null;
+        }
+
+        digest.reset();
+        digest.update(serial.getBytes());
+
+        String hash = new BigInteger(1, digest.digest()).toString(16);
+        Log.i("HarvestReporter", hash);
+
+        return hash;
     }
 
     private JSONArray getJSONReport(List<HarvestEntry> entries) {
