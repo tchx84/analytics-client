@@ -38,6 +38,7 @@ import android.app.ActivityManager.RunningTaskInfo;
 
 import org.OneEducation.HarvestClient.HarvestJournal;
 import org.OneEducation.HarvestClient.HarvestEntry;
+import org.OneEducation.HarvestClient.HarvestReporterException;
 
 
 public class HarvestWatcher implements Runnable {
@@ -112,7 +113,15 @@ public class HarvestWatcher implements Runnable {
         Log.i("HarvestWatcher", "reportActivity");
         if (reporter.canReport()) {
             List<HarvestEntry> entries = journal.getEntries();
-            reporter.report(entries);
+
+            try {
+                reporter.report(entries);
+            } catch (HarvestReporterException e) {
+                Log.i("HarvestWatcher", "reportActivity failed");
+                return;
+            }
+
+            journal.empty();
         }
     }
 }

@@ -49,6 +49,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import org.OneEducation.HarvestClient.HarvestSettings;
 import org.OneEducation.HarvestClient.HarvestEntry;
+import org.OneEducation.HarvestClient.HarvestReporterException;
+
 
 public class HarvestReporter {
 
@@ -67,7 +69,7 @@ public class HarvestReporter {
         return false;
     }
 
-    public void report(List<HarvestEntry> entries){
+    public void report(List<HarvestEntry> entries) throws HarvestReporterException {
        Log.i("HarvestService", "reporting");
 
        JSONArray json = getJSONReport(entries);
@@ -95,7 +97,7 @@ public class HarvestReporter {
        }
        catch (IOException e) {
            Log.e("HarvestClient", "exception", e);
-           return;
+           throw new HarvestReporterException("ops!");
        }
 
        lastReported = System.currentTimeMillis() / 1000L;
