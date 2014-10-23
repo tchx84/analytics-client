@@ -79,11 +79,25 @@ public class HarvestJournal {
 
         entry.increment(delta);
         sessions.put(id, entry);
-        Log.i("HarvestJournal", String.format("%s %d %d", entry.packageName, entry.started, entry.duration));
+        Log.i("HarvestJournal", String.format("%s %d %d %d", entry.packageName, id, entry.started, entry.duration));
 
         if ((now - lastPersisted) > HarvestSettings.PERSIST) {
             dump();
             lastPersisted = now;
+        }
+
+        display();
+    }
+
+    public void display() {
+        Log.i("HarvestJournal", "display");
+        for (String packageName : (Set<String>) data.keySet()) {
+            HashMap sessions = (HashMap) data.get(packageName);
+
+            for (Integer id : (Set<Integer>) sessions.keySet()) {
+                HarvestEntry entry = (HarvestEntry) sessions.get(id);
+                Log.i("HarvestJournal", String.format("%s %d %d %d", entry.packageName, id, entry.started, entry.duration));
+            }
         }
     }
 
