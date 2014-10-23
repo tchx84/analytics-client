@@ -21,6 +21,8 @@ package org.OneEducation.HarvestClient;
 
 import java.lang.Integer;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.lang.String;
 import java.lang.Runnable;
 
@@ -41,6 +43,10 @@ import org.OneEducation.HarvestClient.HarvestEntry;
 public class HarvestWatcher implements Runnable {
 
     private Integer MAX_TASKS = 1;
+    private List<String> BLACKLIST = new ArrayList<String>(Arrays.asList("android",
+                                                                         "com.android.launcher",
+                                                                         "com.android.settings",
+                                                                         "com.android.systemui"));
     private HarvestJournal journal;
     private HarvestReporter reporter;
     private Handler handler;
@@ -93,7 +99,13 @@ public class HarvestWatcher implements Runnable {
             Log.e("HarvestWatcher", error);
         }
 
-        journal.store(packageName, task.id);
+        if (!BLACKLIST.contains(packageName)) {
+           journal.store(packageName, task.id);
+        }
+
+        if (journal.canDump()){
+            journal.dump();
+        }
     }
 
     private void reportActivity() {

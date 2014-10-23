@@ -81,12 +81,13 @@ public class HarvestJournal {
         sessions.put(id, entry);
         Log.i("HarvestJournal", String.format("%s %d %d %d", entry.packageName, id, entry.started, entry.duration));
 
-        if ((now - lastPersisted) > HarvestSettings.PERSIST) {
-            dump();
-            lastPersisted = now;
-        }
-
         display();
+    }
+
+    public Boolean canDump() {
+        Log.i("HarvestJournal", "canDump");
+        Long now = System.currentTimeMillis() / 1000L;
+        return ((now - lastPersisted) > HarvestSettings.PERSIST);
     }
 
     public void display() {
@@ -111,6 +112,8 @@ public class HarvestJournal {
                 storage.persist(entry);
             }
         }
+
+        lastPersisted = System.currentTimeMillis() / 1000L;
     }
 
     public List<HarvestEntry> getEntries() {
