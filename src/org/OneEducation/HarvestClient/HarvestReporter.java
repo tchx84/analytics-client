@@ -38,6 +38,7 @@ import java.io.UnsupportedEncodingException;
 
 import android.os.Build;
 import android.util.Log;
+import android.content.Context;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -54,16 +55,16 @@ import org.OneEducation.HarvestClient.HarvestReporterException;
 
 public class HarvestReporter {
 
-    private Long lastReported;
+    private HarvestSettings settings;
 
-    public HarvestReporter(){
+    public HarvestReporter(Context context){
         Log.i("HarvestClient", "creating reporter.");
-        lastReported = System.currentTimeMillis() / 1000L;
+        settings = new HarvestSettings(context);
     }
 
     public Boolean canReport() {
         Long now = System.currentTimeMillis() / 1000L;
-        if ((now - lastReported) > HarvestSettings.REPORT) {
+        if ((now - settings.getLastReported()) > HarvestSettings.REPORT_INTERVAL) {
             return true;
         }
         return false;
@@ -100,7 +101,7 @@ public class HarvestReporter {
            throw new HarvestReporterException("ops!");
        }
 
-       lastReported = System.currentTimeMillis() / 1000L;
+       settings.setLastReported(System.currentTimeMillis() / 1000L);
        Log.i("HarvestService", "successfully reported");
     }
 

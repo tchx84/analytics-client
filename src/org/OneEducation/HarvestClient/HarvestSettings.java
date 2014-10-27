@@ -21,13 +21,38 @@ package org.OneEducation.HarvestClient;
 
 import java.lang.Long;
 
+import android.util.Log;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.content.SharedPreferences.Editor;
+
 
 class HarvestSettings {
 
    static final Long INTERVAL = 20L;
    static final Long PERSIST = 20L;
-   static final Long REPORT = 20L;
-   static final String SERVER = "http://10.0.0.4:8887/analytics/report";
+   static final Long REPORT_INTERVAL = 60L;
+   static final String SERVER = "http://172.17.197.136:8887/analytics/report";
    static final String KEY = "analytics";
 
+   private Context context;
+
+   public HarvestSettings(Context _context){
+      context = _context;
+   }
+
+   public Long getLastReported(){
+       Log.i("HarvestSettings", "getLastReported");
+       SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+       return preferences.getLong("lastReported", 0);
+   }
+
+   public void setLastReported(Long lastReported){
+       Log.i("HarvestSettings", "setLastReported");
+       SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+       Editor editor = preferences.edit();
+       editor.putLong("lastReported", lastReported);
+       editor.commit();
+   }
 }

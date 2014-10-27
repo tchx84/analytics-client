@@ -37,6 +37,7 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.RunningTaskInfo;
 
 import org.OneEducation.HarvestClient.HarvestJournal;
+import org.OneEducation.HarvestClient.HarvestReporter;
 import org.OneEducation.HarvestClient.HarvestEntry;
 import org.OneEducation.HarvestClient.HarvestReporterException;
 
@@ -57,7 +58,7 @@ public class HarvestWatcher implements Runnable {
         Log.i("HarvestWatcher", "created");
 
         journal = new HarvestJournal(_context);
-        reporter = new HarvestReporter();
+        reporter = new HarvestReporter(_context);
         handler =  new Handler();
         context = _context;
     }
