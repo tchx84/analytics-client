@@ -39,6 +39,8 @@ import java.io.UnsupportedEncodingException;
 import android.os.Build;
 import android.util.Log;
 import android.content.Context;
+import android.net.NetworkInfo;
+import android.net.ConnectivityManager;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -55,19 +57,30 @@ import org.OneEducation.HarvestClient.HarvestReporterException;
 
 public class HarvestReporter {
 
+    private Context context;
     private HarvestSettings settings;
 
-    public HarvestReporter(Context context){
+    public HarvestReporter(Context _context){
         Log.i("HarvestClient", "creating reporter.");
+        context = _context;
         settings = new HarvestSettings(context);
     }
 
     public Boolean canReport() {
-        Long now = System.currentTimeMillis() / 1000L;
-        if ((now - settings.getLastReported()) > HarvestSettings.REPORT_INTERVAL) {
-            return true;
+        Log.i("HarvestReporter", "canReport");
+
+        ConnectivityManager manager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = manager.getActiveNetworkInfo();
+        if (info == null || !info.isAvailable() || !info.isConnected()) {
+            return false;
         }
-        return false;
+
+        Long now = System.currentTimeMillis() / 1000L;
+        if ((now - settings.getLastReported()) < HarvestSettings.REPORT_INTERVAL) {
+            return false;
+        }
+
+        return true;
     }
 
     public void report(List<HarvestEntry> entries) throws HarvestReporterException {
