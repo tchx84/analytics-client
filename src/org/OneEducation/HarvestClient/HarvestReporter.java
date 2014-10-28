@@ -57,6 +57,7 @@ import org.OneEducation.HarvestClient.HarvestReporterException;
 
 public class HarvestReporter {
 
+    private Long lastAttempt;
     private Context context;
     private HarvestSettings settings;
 
@@ -64,6 +65,7 @@ public class HarvestReporter {
         Log.i("HarvestClient", "creating reporter.");
         context = _context;
         settings = new HarvestSettings(context);
+        lastAttempt = settings.getLastReported();
     }
 
     public Boolean canReport() {
@@ -76,6 +78,9 @@ public class HarvestReporter {
         }
 
         Long now = System.currentTimeMillis() / 1000L;
+        if ((now - lastAttempt) < HarvestSettings.ATTEMPT_INTERVAL) {
+            return false;
+        }
         if ((now - settings.getLastReported()) < HarvestSettings.REPORT_INTERVAL) {
             return false;
         }
@@ -86,6 +91,7 @@ public class HarvestReporter {
     public void report(List<HarvestEntry> entries) throws HarvestReporterException {
        Log.i("HarvestService", "reporting");
 
+       lastAttempt = System.currentTimeMillis() / 1000L;
        JSONArray json = getJSONReport(entries);
 
        StringEntity string;
