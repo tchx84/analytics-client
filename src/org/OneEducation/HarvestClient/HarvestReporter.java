@@ -74,14 +74,17 @@ public class HarvestReporter {
         ConnectivityManager manager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info = manager.getActiveNetworkInfo();
         if (info == null || !info.isAvailable() || !info.isConnected()) {
+            Log.i("HarvestReporter", "canReport: not connected");
             return false;
         }
 
         Long now = System.currentTimeMillis() / 1000L;
         if ((now - lastAttempt) < HarvestSettings.ATTEMPT_INTERVAL) {
+            Log.i("HarvestReporter", "canReport: too soon to try");
             return false;
         }
         if ((now - settings.getLastReported()) < HarvestSettings.REPORT_INTERVAL) {
+            Log.i("HarvestReporter", "canReport: too son to report");
             return false;
         }
 
