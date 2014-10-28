@@ -102,7 +102,7 @@ public class HarvestReporter {
            string = new StringEntity(json.toString());
        }
        catch (UnsupportedEncodingException e) {
-           Log.e("HarvesyClient", "cannot serialize data.");
+           Log.e("HarvestClient", "cannot serialize data.");
            return;
        }
 
