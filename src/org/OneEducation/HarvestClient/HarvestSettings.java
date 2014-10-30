@@ -30,11 +30,11 @@ import android.content.SharedPreferences.Editor;
 
 class HarvestSettings {
 
-   static final Long INTERVAL = 20L;
-   static final Long PERSIST = 20L;
-   static final Long ATTEMPT_INTERVAL = 60L;
-   static final Long REPORT_INTERVAL = 60L;
-   static final String SERVER = "http://172.17.197.136:8887/analytics/report";
+   static final Long INTERVAL = 15L;
+   static final Long PERSIST = 300L;
+   static final Long ATTEMPT_INTERVAL = 1800L;
+   static final Long REPORT_INTERVAL = 518400L;
+   static final String SERVER = "https://192.168.0.12/analytics/report";
    static final String KEY = "analytics";
 
    private Context context;
