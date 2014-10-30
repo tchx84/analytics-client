@@ -30,9 +30,17 @@ import java.lang.Boolean;
 import java.lang.System;
 import java.math.BigInteger;
 
+import java.security.KeyStore;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+import java.security.cert.CertificateException;
+import java.security.KeyStoreException;
+import java.security.KeyManagementException;
+import java.security.UnrecoverableKeyException;
 
+import java.io.InputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
@@ -49,6 +57,11 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.conn.scheme.PlainSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.impl.conn.SingleClientConnManager;
 
 import org.OneEducation.HarvestClient.HarvestSettings;
 import org.OneEducation.HarvestClient.HarvestEntry;
@@ -113,7 +126,10 @@ public class HarvestReporter {
        request.setHeader("Content-type", "application/json");
 
        BasicResponseHandler responseHandler = new BasicResponseHandler();
-       DefaultHttpClient httpclient = new DefaultHttpClient();
+       DefaultHttpClient httpclient = getSecuredHttpClient();
+       if (httpclient == null) {
+           throw new HarvestReporterException("ops!");
+       }
 
        try {
            httpclient.execute(request, responseHandler);
@@ -126,6 +142,52 @@ public class HarvestReporter {
        settings.setLastReported(System.currentTimeMillis() / 1000L);
        Log.i("HarvestService", "successfully reported");
     }
+
+    private DefaultHttpClient getSecuredHttpClient() {
+        Log.i("HarvestReporter", "getSecuredHttpClient");
+
+        SSLSocketFactory sslFactory = null;
+        try {
+            CertificateFactory factory = CertificateFactory.getInstance("X.509");
+            InputStream stream = context.getResources().getAssets().open("analytics.crt");
+
+            Certificate certificate = factory.generateCertificate(stream);
+            stream.close();
+
+            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            keyStore.load(null, null);
+            keyStore.setCertificateEntry("ca", certificate);
+
+            sslFactory = new SSLSocketFactory(keyStore);
+            sslFactory.setHostnameVerifier(SSLSocketFactory.STRICT_HOSTNAME_VERIFIER);
+        } catch (IOException e) {
+            Log.e("HarvestReporter", "certificate", e);
+        } catch (CertificateException e) {
+            Log.e("HarvestReporter", "certificate", e);
+        } catch (NoSuchAlgorithmException e) {
+            Log.e("HarvestReporter", "certificate", e);
+        } catch (KeyStoreException e) {
+            Log.e("HarvestReporter", "certificate", e);
+        } catch (KeyManagementException e) {
+            Log.e("HarvestReporter", "certificate", e);
+        } catch (UnrecoverableKeyException e) {
+            Log.e("HarvestReporter", "certificate", e);
+        }
+
+        if (sslFactory == null) {
+            return null;
+        }
+
+        SchemeRegistry registry = new SchemeRegistry();
+        registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
+        registry.register(new Scheme("https", sslFactory, 443));
+        
+        DefaultHttpClient tmpClient = new DefaultHttpClient();
+        SingleClientConnManager connManager = new SingleClientConnManager(tmpClient.getParams(), registry);
+        DefaultHttpClient httpClient = new DefaultHttpClient(connManager, tmpClient.getParams());
+
+        return httpClient;        
+    } 
 
     private String getUID() {
         String serial = Build.SERIAL;
