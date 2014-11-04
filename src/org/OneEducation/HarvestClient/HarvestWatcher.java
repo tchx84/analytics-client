@@ -30,9 +30,6 @@ import android.os.Handler;
 import android.util.Log;
 import android.content.Context;
 import android.content.ComponentName;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.pm.ApplicationInfo;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningTaskInfo;
 
@@ -88,22 +85,16 @@ public class HarvestWatcher implements Runnable {
 
         RunningTaskInfo task = tasks.get(0);
         ComponentName activity = task.baseActivity;
-        String packageName = activity.getPackageName();
+        String packageName = activity.flattenToString();
         String applicationLabel = "unknown";
 
-        try {
-            PackageManager packageManager = context.getPackageManager();
-            ApplicationInfo applicationInfo = packageManager.getApplicationInfo(packageName, 0);
-            applicationLabel = (String)packageManager.getApplicationLabel(applicationInfo);
-        }
-        catch (NameNotFoundException e) {
-            String error = String.format("cannot find package name %s", packageName);
-            Log.e("HarvestWatcher", error);
+        for (String blacklisted: BLACKLIST) {
+            if (packageName.startsWith(blacklisted)){
+                return;
+            }
         }
 
-        if (!BLACKLIST.contains(packageName)) {
-           journal.store(packageName, task.id);
-        }
+        journal.store(packageName, task.id);
 
         if (journal.canDump()){
             journal.dump();
