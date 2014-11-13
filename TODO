@@ -1,2 +1,1 @@
 - extend HarvestReporter.canReport() to include some randomness.
-- switch HarvestReporter.report() to use HTTPS.
