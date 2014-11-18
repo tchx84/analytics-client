@@ -83,8 +83,8 @@ public class HarvestStore extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(QUERY_FIND, new String[] {entry.packageName, entry.started.toString()});
         if (cursor.moveToFirst()) {
            previousDuration = Long.parseLong(cursor.getString(2), 10);
-           cursor.close(); 
         }
+        cursor.close(); 
 
         ContentValues values = new ContentValues();
         values.put(COLUMN_PACKAGE, entry.packageName);
@@ -110,8 +110,10 @@ public class HarvestStore extends SQLiteOpenHelper {
 
                 entries.add(entry);
             } while (cursor.moveToNext());
-        };
+        }
+        cursor.close();
 
+        db.close();
         return entries;
     }
 }
