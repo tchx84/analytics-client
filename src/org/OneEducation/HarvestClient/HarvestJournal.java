@@ -27,6 +27,8 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 import android.util.Log;
 import android.content.Context;
@@ -52,7 +54,18 @@ public class HarvestJournal {
         lastPersisted = lastStored;
     }
 
-    public void store(String packageName, Integer id) {
+    private Long getStarted() {
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        return calendar.getTimeInMillis() / 1000L;
+    }
+
+    public void store(String packageName) {
         Log.i("HarvestJournal", "store");
         HashMap sessions;
 
@@ -63,12 +76,15 @@ public class HarvestJournal {
             data.put(packageName, sessions);
         }
 
+        Long started = getStarted();
         HarvestEntry entry;
 
-        if (sessions.containsKey(id)) {
-            entry = (HarvestEntry) sessions.get(id);
+        if (sessions.containsKey(started)) {
+            entry = (HarvestEntry) sessions.get(started);
         } else {
             entry = new HarvestEntry(packageName);
+            entry.started = started;
+            sessions.put(started, entry);
         }
 
         Long now = System.currentTimeMillis() / 1000L;
@@ -78,8 +94,7 @@ public class HarvestJournal {
         }
 
         entry.increment(delta);
-        sessions.put(id, entry);
-        Log.i("HarvestJournal", String.format("%s %d %d %d", entry.packageName, id, entry.started, entry.duration));
+        Log.i("HarvestJournal", String.format("%s %d %d", entry.packageName, entry.started, entry.duration));
 
         display();
     }
@@ -100,9 +115,9 @@ public class HarvestJournal {
         for (String packageName : (Set<String>) data.keySet()) {
             HashMap sessions = (HashMap) data.get(packageName);
 
-            for (Integer id : (Set<Integer>) sessions.keySet()) {
-                HarvestEntry entry = (HarvestEntry) sessions.get(id);
-                Log.i("HarvestJournal", String.format("%s %d %d %d", entry.packageName, id, entry.started, entry.duration));
+            for (Long started : (Set<Long>) sessions.keySet()) {
+                HarvestEntry entry = (HarvestEntry) sessions.get(started);
+                Log.i("HarvestJournal", String.format("%s %d %d", entry.packageName, entry.started, entry.duration));
             }
         }
     }
@@ -112,8 +127,8 @@ public class HarvestJournal {
         for (String packageName : (Set<String>) data.keySet()) {
             HashMap sessions = (HashMap) data.get(packageName);
 
-            for (Integer id : (Set<Integer>) sessions.keySet()) {
-                HarvestEntry entry = (HarvestEntry) sessions.get(id);
+            for (Long started : (Set<Long>) sessions.keySet()) {
+                HarvestEntry entry = (HarvestEntry) sessions.get(started);
                 storage.persist(entry);
             }
         }

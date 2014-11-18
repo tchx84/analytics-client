@@ -101,7 +101,7 @@ public class HarvestWatcher implements Runnable {
             }
         }
 
-        journal.store(packageName, task.id);
+        journal.store(packageName);
     }
 
     private void reportActivity() {

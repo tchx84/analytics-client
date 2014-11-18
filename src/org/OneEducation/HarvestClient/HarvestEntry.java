@@ -32,7 +32,7 @@ class HarvestEntry {
 
     HarvestEntry (String _packageName) {
         packageName = _packageName;
-        started = System.currentTimeMillis() / 1000L;
+        started = 0L;
         duration = 0L;
     }
 
