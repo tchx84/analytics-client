@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.TimeZone;
 
+import android.os.SystemClock;
 import android.util.Log;
 import android.content.Context;
 
@@ -48,10 +49,10 @@ public class HarvestJournal {
     public HarvestJournal(Context context) {
         Log.i("HarvestJournal", "created");
         data = new HashMap();
-        lastStored = System.currentTimeMillis() / 1000L;
+        lastStored = SystemClock.elapsedRealtime() / 1000L;
 
         storage = new HarvestStore(context);
-        lastPersisted = lastStored;
+        lastPersisted = 0L;
     }
 
     private Long getStarted() {
@@ -87,7 +88,7 @@ public class HarvestJournal {
             sessions.put(started, entry);
         }
 
-        Long now = System.currentTimeMillis() / 1000L;
+        Long now = SystemClock.elapsedRealtime() / 1000L;
         Long delta = now - lastStored;
         if (delta > HarvestSettings.INTERVAL) {
             delta = HarvestSettings.INTERVAL;
