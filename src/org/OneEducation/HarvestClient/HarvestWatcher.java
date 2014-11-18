@@ -63,6 +63,7 @@ public class HarvestWatcher implements Runnable {
     public void run(){
         Log.i("HarvestWatcher", "run");
         processActivity();
+        persistActivity();
         reportActivity();
         handler.postDelayed(this, HarvestSettings.INTERVAL * 1000L);
     }
@@ -71,6 +72,12 @@ public class HarvestWatcher implements Runnable {
         Log.i("HarvestWatcher", "stop");
         handler.removeCallbacks(this);
         journal.dump();
+    }
+
+    private void persistActivity() {
+        if (journal.canDump()){
+            journal.dump();
+        }
     }
 
     private void processActivity(){
@@ -95,10 +102,6 @@ public class HarvestWatcher implements Runnable {
         }
 
         journal.store(packageName, task.id);
-
-        if (journal.canDump()){
-            journal.dump();
-        }
     }
 
     private void reportActivity() {
