@@ -75,11 +75,6 @@ public class HarvestStore extends SQLiteOpenHelper {
         this.onCreate(db);
     }
 
-    public void empty(){
-        Log.i("HarvestStore", "empty");
-        onUpgrade(this.getWritableDatabase(), 0, 0);
-    }
-
     public void persist(HarvestEntry entry) {
         Log.i("HarvestStore", "persist");
         SQLiteDatabase db = this.getWritableDatabase();

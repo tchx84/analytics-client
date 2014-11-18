@@ -99,11 +99,6 @@ public class HarvestJournal {
         display();
     }
 
-    public void empty(){
-        Log.i("HarvestJournal", "empty");
-        storage.empty();
-    }
-
     public Boolean canDump() {
         Log.i("HarvestJournal", "canDump");
         Long now = System.currentTimeMillis() / 1000L;
@@ -133,6 +128,7 @@ public class HarvestJournal {
             }
         }
 
+        data.clear();
         lastPersisted = System.currentTimeMillis() / 1000L;
     }
 

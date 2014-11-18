@@ -113,10 +113,7 @@ public class HarvestWatcher implements Runnable {
                 reporter.report(entries);
             } catch (HarvestReporterException e) {
                 Log.i("HarvestWatcher", "reportActivity failed");
-                return;
             }
-
-            journal.empty();
         }
     }
 }
