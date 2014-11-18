@@ -49,6 +49,8 @@ public class HarvestStore extends SQLiteOpenHelper {
 
     private String QUERY_DROP = "DROP TABLE IF EXISTS entries";
 
+    private String QUERY_FIND = "SELECT * FROM entries WHERE package = ? AND started = ?";
+
     private String QUERY_SELECT = "SELECT * FROM entries";
 
     private String TABLE_NAME = "entries";
@@ -82,10 +84,17 @@ public class HarvestStore extends SQLiteOpenHelper {
         Log.i("HarvestStore", "persist");
         SQLiteDatabase db = this.getWritableDatabase();
 
+        Long previousDuration = 0L;
+        Cursor cursor = db.rawQuery(QUERY_FIND, new String[] {entry.packageName, entry.started.toString()});
+        if (cursor.moveToFirst()) {
+           previousDuration = Long.parseLong(cursor.getString(2), 10);
+           cursor.close(); 
+        }
+
         ContentValues values = new ContentValues();
         values.put(COLUMN_PACKAGE, entry.packageName);
         values.put(COLUMN_STARTED, entry.started);
-        values.put(COLUMN_DURATION, entry.duration);
+        values.put(COLUMN_DURATION, entry.duration + previousDuration); 
 
         db.replace(TABLE_NAME, null, values);
         db.close();
