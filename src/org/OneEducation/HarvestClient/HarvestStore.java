@@ -51,7 +51,7 @@ public class HarvestStore extends SQLiteOpenHelper {
 
     private String QUERY_FIND = "SELECT * FROM entries WHERE package = ? AND started = ?";
 
-    private String QUERY_SELECT = "SELECT * FROM entries";
+    private String QUERY_SELECT = "SELECT * FROM entries WHERE started >= ?";
 
     private String TABLE_NAME = "entries";
     private String COLUMN_PACKAGE = "package";
@@ -95,13 +95,12 @@ public class HarvestStore extends SQLiteOpenHelper {
         db.close();
     }
 
-    public List<HarvestEntry> retrieve() {
+    public List<HarvestEntry> retrieve(Long started) {
         Log.i("HarvestStore", "retrieve");
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery(QUERY_SELECT, null);
-
         List<HarvestEntry> entries = new ArrayList<HarvestEntry>();
+        SQLiteDatabase db = this.getWritableDatabase();
 
+        Cursor cursor = db.rawQuery(QUERY_SELECT, new String[] {started.toString()});
         if (cursor.moveToFirst()) {
             do {
                 HarvestEntry entry = new HarvestEntry(cursor.getString(0));

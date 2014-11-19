@@ -46,6 +46,8 @@ public class HarvestJournal {
     private HarvestStore storage;
     private Long lastPersisted;
 
+    private HarvestSettings settings;
+
     public HarvestJournal(Context context) {
         Log.i("HarvestJournal", "created");
         data = new HashMap();
@@ -53,10 +55,17 @@ public class HarvestJournal {
 
         storage = new HarvestStore(context);
         lastPersisted = 0L;
+
+        settings = new HarvestSettings(context);
     }
 
-    private Long getStarted() {
+    private Long getStarted(Long timestamp) {
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+
+        // if null use today's date, otherwise given timestamp
+        if (timestamp != null) {
+            calendar.setTimeInMillis(timestamp * 1000L);
+        }
 
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
@@ -77,7 +86,7 @@ public class HarvestJournal {
             data.put(packageName, sessions);
         }
 
-        Long started = getStarted();
+        Long started = getStarted(null);
         HarvestEntry entry;
 
         if (sessions.containsKey(started)) {
@@ -136,6 +145,6 @@ public class HarvestJournal {
     public List<HarvestEntry> getEntries() {
         Log.i("HarvestJournal", "getEntries");
         dump();
-        return storage.retrieve();
+        return storage.retrieve(getStarted(settings.getLastReported()));
     }
 }
