@@ -23,7 +23,6 @@ import java.util.List;
 import java.lang.Long;
 import java.lang.String;
 import java.lang.Boolean;
-import java.lang.System;
 import java.math.BigInteger;
 
 import java.security.MessageDigest;
@@ -55,7 +54,7 @@ public class HarvestReporter {
         Log.i("HarvestClient", "creating reporter.");
         context = _context;
         settings = new HarvestSettings(context);
-        lastAttempt = settings.getLastReported();
+        lastAttempt = settings.getRealNowSeconds();
         previousTask = null;
     }
 
@@ -69,12 +68,11 @@ public class HarvestReporter {
             return false;
         }
 
-        Long now = System.currentTimeMillis() / 1000L;
-        if ((now - lastAttempt) < HarvestSettings.ATTEMPT_INTERVAL) {
+        if ((settings.getRealNowSeconds() - lastAttempt) < HarvestSettings.ATTEMPT_INTERVAL) {
             Log.i("HarvestReporter", "canReport: too soon to try");
             return false;
         }
-        if ((now - settings.getLastReported()) < HarvestSettings.REPORT_INTERVAL) {
+        if ((settings.getClockNowSeconds() - settings.getLastReported()) < HarvestSettings.REPORT_INTERVAL) {
             Log.i("HarvestReporter", "canReport: too son to report");
             return false;
         }
@@ -89,7 +87,7 @@ public class HarvestReporter {
 
     public void report(List<HarvestEntry> entries) {
        Log.i("HarvestService", "reporting");
-       lastAttempt = System.currentTimeMillis() / 1000L;
+       lastAttempt = settings.getRealNowSeconds();
 
        JSONArray json = getJSONReport(entries);
        HarvestReporterTask task = new HarvestReporterTask(context);

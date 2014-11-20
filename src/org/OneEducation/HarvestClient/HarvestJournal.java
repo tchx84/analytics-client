@@ -22,7 +22,6 @@ package org.OneEducation.HarvestClient;
 import java.lang.Long;
 import java.lang.Integer;
 import java.lang.String;
-import java.lang.System;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.List;
@@ -30,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import android.os.SystemClock;
 import android.util.Log;
 import android.content.Context;
 
@@ -51,12 +49,10 @@ public class HarvestJournal {
     public HarvestJournal(Context context) {
         Log.i("HarvestJournal", "created");
         data = new HashMap();
-        lastStored = SystemClock.elapsedRealtime() / 1000L;
-
         storage = new HarvestStore(context);
-        lastPersisted = 0L;
-
         settings = new HarvestSettings(context);
+        lastPersisted = settings.getRealNowSeconds();
+        lastStored = settings.getRealNowSeconds();
     }
 
     private Long getStarted(Long timestamp) {
@@ -97,8 +93,7 @@ public class HarvestJournal {
             sessions.put(started, entry);
         }
 
-        Long now = SystemClock.elapsedRealtime() / 1000L;
-        Long delta = now - lastStored;
+        Long delta = settings.getRealNowSeconds() - lastStored;
         if (delta > HarvestSettings.INTERVAL) {
             delta = HarvestSettings.INTERVAL;
         }
@@ -111,8 +106,7 @@ public class HarvestJournal {
 
     public Boolean canDump() {
         Log.i("HarvestJournal", "canDump");
-        Long now = System.currentTimeMillis() / 1000L;
-        return ((now - lastPersisted) > HarvestSettings.PERSIST);
+        return ((settings.getRealNowSeconds() - lastPersisted) > HarvestSettings.PERSIST);
     }
 
     public void display() {
@@ -139,7 +133,7 @@ public class HarvestJournal {
         }
 
         data.clear();
-        lastPersisted = System.currentTimeMillis() / 1000L;
+        lastPersisted = settings.getRealNowSeconds();
     }
 
     public List<HarvestEntry> getEntries() {

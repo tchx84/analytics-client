@@ -21,7 +21,6 @@ package org.OneEducation.HarvestClient;
 
 import java.lang.String;
 import java.lang.Boolean;
-import java.lang.System;
 import java.io.InputStream;
 import java.io.IOException;
 import java.security.KeyStore;
@@ -101,7 +100,7 @@ class HarvestReporterTask extends AsyncTask<String, Void, Boolean> {
     @Override
     protected void onPostExecute(Boolean result) {
         if (result == true) {
-            settings.setLastReported(System.currentTimeMillis() / 1000L);
+            settings.setLastReported(settings.getClockNowSeconds());
             Log.i("HarvestReporterTask", "onPostExecute: reported sucessfully");
         }
     }

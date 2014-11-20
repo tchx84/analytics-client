@@ -20,7 +20,9 @@
 package org.OneEducation.HarvestClient;
 
 import java.lang.Long;
+import java.lang.System;
 
+import android.os.SystemClock;
 import android.util.Log;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -41,6 +43,14 @@ class HarvestSettings {
 
    public HarvestSettings(Context _context){
       context = _context;
+   }
+
+   public Long getClockNowSeconds() {
+       return System.currentTimeMillis() / 1000L;
+   }
+
+   public long getRealNowSeconds() {
+       return SystemClock.elapsedRealtime() / 1000L;
    }
 
    public Long getLastReported(){
