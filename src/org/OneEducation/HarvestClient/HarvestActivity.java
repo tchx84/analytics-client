@@ -21,6 +21,10 @@ package org.OneEducation.HarvestClient;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.content.Intent;
+
+import org.OneEducation.HarvestClient.HarvestService;
+
 
 public class HarvestActivity extends Activity
 {
@@ -30,5 +34,11 @@ public class HarvestActivity extends Activity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        launchService();
+    }
+
+    private void launchService(){
+        Intent serviceIntent = new Intent(this, HarvestService.class);
+        startService(serviceIntent);
     }
 }

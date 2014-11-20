@@ -40,13 +40,13 @@ public class HarvestService extends Service {
     public void onCreate() {
         Log.i("HarvestService", "created");
         watcher = new HarvestWatcher(this);
+        watcher.run();
+        letTheUserKnow();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i("HarvestService", "started");
-        watcher.run();
-        letTheUserKnow();
         return Service.START_STICKY;
     }
 
