@@ -62,7 +62,7 @@ class HarvestReporterTask extends AsyncTask<String, Void, Boolean> {
 
     @Override
     protected Boolean doInBackground(String... data) {
-       Log.i("HarvestReporterTask", "doInBackground");
+       Log.d("HarvestReporterTask", "doInBackground");
 
        StringEntity entity;
        try {
@@ -82,7 +82,7 @@ class HarvestReporterTask extends AsyncTask<String, Void, Boolean> {
        DefaultHttpClient httpClient = getSecuredHttpClient();
 
        if (httpClient == null) {
-           Log.e("HarvestReporterTask", "no secured client");
+           Log.e("HarvestReporterTask", "doInBackground: no secured client");
            return false;
        }
 
@@ -90,7 +90,7 @@ class HarvestReporterTask extends AsyncTask<String, Void, Boolean> {
            httpClient.execute(request, responseHandler);
        }
        catch (IOException e) {
-           Log.e("HarvestReporterTask", "exception", e);
+           Log.e("HarvestReporterTask", "doInBackground", e);
            return false;
        }
 
@@ -106,7 +106,7 @@ class HarvestReporterTask extends AsyncTask<String, Void, Boolean> {
     }
 
     private DefaultHttpClient getSecuredHttpClient() {
-        Log.i("HarvestReporterTask", "getSecuredHttpClient");
+        Log.d("HarvestReporterTask", "getSecuredHttpClient");
 
         SSLSocketFactory sslFactory = null;
         try {
@@ -123,17 +123,17 @@ class HarvestReporterTask extends AsyncTask<String, Void, Boolean> {
             sslFactory = new SSLSocketFactory(keyStore);
             sslFactory.setHostnameVerifier(SSLSocketFactory.STRICT_HOSTNAME_VERIFIER);
         } catch (IOException e) {
-            Log.e("HarvestReporter", "certificate", e);
+            Log.e("HarvestReporterTask", "getSecuredHttpClient", e);
         } catch (CertificateException e) {
-            Log.e("HarvestReporter", "certificate", e);
+            Log.e("HarvestReporterTask", "getSecuredHttpClient", e);
         } catch (NoSuchAlgorithmException e) {
-            Log.e("HarvestReporter", "certificate", e);
+            Log.e("HarvestReporterTask", "getSecuredHttpClient", e);
         } catch (KeyStoreException e) {
-            Log.e("HarvestReporter", "certificate", e);
+            Log.e("HarvestReporterTask", "getSecuredHttpClient", e);
         } catch (KeyManagementException e) {
-            Log.e("HarvestReporter", "certificate", e);
+            Log.e("HarvestReporterTask", "getSecuredHttpClient", e);
         } catch (UnrecoverableKeyException e) {
-            Log.e("HarvestReporter", "certificate", e);
+            Log.e("HarvestReporterTask", "getSecuredHttpClient", e);
         }
 
         if (sslFactory == null) {

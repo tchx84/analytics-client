@@ -51,7 +51,7 @@ public class HarvestReporter {
     private HarvestReporterTask previousTask;
 
     public HarvestReporter(Context _context){
-        Log.i("HarvestClient", "creating reporter.");
+        Log.d("HarvestReporter", "created");
         context = _context;
         settings = new HarvestSettings(context);
         lastAttempt = settings.getRealNowSeconds();
@@ -59,26 +59,26 @@ public class HarvestReporter {
     }
 
     public Boolean canReport() {
-        Log.i("HarvestReporter", "canReport");
+        Log.d("HarvestReporter", "canReport");
 
         ConnectivityManager manager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info = manager.getActiveNetworkInfo();
         if (info == null || !info.isAvailable() || !info.isConnected()) {
-            Log.i("HarvestReporter", "canReport: not connected");
+            Log.d("HarvestReporter", "canReport: not connected");
             return false;
         }
 
         if ((settings.getRealNowSeconds() - lastAttempt) < HarvestSettings.ATTEMPT_INTERVAL) {
-            Log.i("HarvestReporter", "canReport: too soon to try");
+            Log.d("HarvestReporter", "canReport: too soon to try");
             return false;
         }
         if ((settings.getClockNowSeconds() - settings.getLastReported()) < HarvestSettings.REPORT_INTERVAL) {
-            Log.i("HarvestReporter", "canReport: too son to report");
+            Log.d("HarvestReporter", "canReport: too son to report");
             return false;
         }
 
         if (previousTask != null && previousTask.getStatus() != Status.FINISHED){
-            Log.i("HarvestReporter", "canReport: previous task is still running");
+            Log.d("HarvestReporter", "canReport: previous task is still running");
             return false;
         }
 
@@ -86,7 +86,7 @@ public class HarvestReporter {
     }
 
     public void report(List<HarvestEntry> entries) {
-       Log.i("HarvestService", "reporting");
+       Log.i("HarvestReporter", "reporting");
        lastAttempt = settings.getRealNowSeconds();
 
        JSONArray json = getJSONReport(entries);
@@ -103,7 +103,7 @@ public class HarvestReporter {
         try {
             digest = MessageDigest.getInstance("SHA-1");
         } catch (NoSuchAlgorithmException e) {
-            Log.i("HarvestReporter", "no algorithm");
+            Log.e("HarvestReporter", "getUID: no such algorithm");
             return null;
         }
 
@@ -111,7 +111,7 @@ public class HarvestReporter {
         digest.update(serial.getBytes());
 
         String hash = new BigInteger(1, digest.digest()).toString(16);
-        Log.i("HarvestReporter", hash);
+        Log.d("HarvestReporter", hash);
 
         return hash;
     }

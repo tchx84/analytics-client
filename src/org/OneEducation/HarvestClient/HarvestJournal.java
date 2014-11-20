@@ -47,7 +47,7 @@ public class HarvestJournal {
     private HarvestSettings settings;
 
     public HarvestJournal(Context context) {
-        Log.i("HarvestJournal", "created");
+        Log.d("HarvestJournal", "created");
         data = new HashMap();
         storage = new HarvestStore(context);
         settings = new HarvestSettings(context);
@@ -72,7 +72,7 @@ public class HarvestJournal {
     }
 
     public void store(String packageName) {
-        Log.i("HarvestJournal", "store");
+        Log.d("HarvestJournal", "store");
         HashMap sessions;
 
         if (data.containsKey(packageName)){
@@ -99,30 +99,30 @@ public class HarvestJournal {
         }
 
         entry.increment(delta);
-        Log.i("HarvestJournal", String.format("%s %d %d", entry.packageName, entry.started, entry.duration));
+        Log.d("HarvestJournal", String.format("%s %d %d", entry.packageName, entry.started, entry.duration));
 
         display();
     }
 
     public Boolean canDump() {
-        Log.i("HarvestJournal", "canDump");
+        Log.d("HarvestJournal", "canDump");
         return ((settings.getRealNowSeconds() - lastPersisted) > HarvestSettings.PERSIST);
     }
 
     public void display() {
-        Log.i("HarvestJournal", "display");
+        Log.d("HarvestJournal", "display");
         for (String packageName : (Set<String>) data.keySet()) {
             HashMap sessions = (HashMap) data.get(packageName);
 
             for (Long started : (Set<Long>) sessions.keySet()) {
                 HarvestEntry entry = (HarvestEntry) sessions.get(started);
-                Log.i("HarvestJournal", String.format("%s %d %d", entry.packageName, entry.started, entry.duration));
+                Log.d("HarvestJournal", String.format("%s %d %d", entry.packageName, entry.started, entry.duration));
             }
         }
     }
 
     public void dump() {
-        Log.i("HarvestJournal", "dump");
+        Log.d("HarvestJournal", "dump");
         for (String packageName : (Set<String>) data.keySet()) {
             HashMap sessions = (HashMap) data.get(packageName);
 
@@ -137,7 +137,7 @@ public class HarvestJournal {
     }
 
     public List<HarvestEntry> getEntries() {
-        Log.i("HarvestJournal", "getEntries");
+        Log.d("HarvestJournal", "getEntries");
         dump();
         return storage.retrieve(getStarted(settings.getLastReported()));
     }

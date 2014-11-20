@@ -51,7 +51,7 @@ public class HarvestWatcher implements Runnable {
     private Context context;
 
     public HarvestWatcher(Context _context){
-        Log.i("HarvestWatcher", "created");
+        Log.d("HarvestWatcher", "created");
 
         journal = new HarvestJournal(_context);
         reporter = new HarvestReporter(_context);
@@ -60,7 +60,7 @@ public class HarvestWatcher implements Runnable {
     }
 
     public void run(){
-        Log.i("HarvestWatcher", "run");
+        Log.d("HarvestWatcher", "run");
         processActivity();
         persistActivity();
         reportActivity();
@@ -68,7 +68,7 @@ public class HarvestWatcher implements Runnable {
     }
 
     public void stop(){
-        Log.i("HarvestWatcher", "stop");
+        Log.d("HarvestWatcher", "stop");
         handler.removeCallbacks(this);
         journal.dump();
     }
@@ -80,12 +80,12 @@ public class HarvestWatcher implements Runnable {
     }
 
     private void processActivity(){
-        Log.i("HarvestWatcher", "processActivity");
+        Log.d("HarvestWatcher", "processActivity");
         ActivityManager activityManager = (ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
 
         List<RunningTaskInfo> tasks = activityManager.getRunningTasks(MAX_TASKS);
         if (tasks.isEmpty()) {
-            Log.i("HarvestWatcher", "no task were found");
+            Log.d("HarvestWatcher", "no task were found");
             return;
         }
 
@@ -104,7 +104,7 @@ public class HarvestWatcher implements Runnable {
     }
 
     private void reportActivity() {
-        Log.i("HarvestWatcher", "reportActivity");
+        Log.d("HarvestWatcher", "reportActivity");
         if (reporter.canReport()) {
             List<HarvestEntry> entries = journal.getEntries();
             reporter.report(entries);

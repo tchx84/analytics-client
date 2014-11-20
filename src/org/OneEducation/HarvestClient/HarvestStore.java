@@ -76,7 +76,7 @@ public class HarvestStore extends SQLiteOpenHelper {
     }
 
     public void persist(HarvestEntry entry) {
-        Log.i("HarvestStore", "persist");
+        Log.d("HarvestStore", "persist");
         SQLiteDatabase db = this.getWritableDatabase();
 
         Long previousDuration = 0L;
@@ -96,7 +96,7 @@ public class HarvestStore extends SQLiteOpenHelper {
     }
 
     public List<HarvestEntry> retrieve(Long started) {
-        Log.i("HarvestStore", "retrieve");
+        Log.d("HarvestStore", "retrieve");
         List<HarvestEntry> entries = new ArrayList<HarvestEntry>();
         SQLiteDatabase db = this.getWritableDatabase();
 

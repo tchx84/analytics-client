@@ -46,7 +46,7 @@ public class HarvestService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i("HarvestService", "started");
+        Log.d("HarvestService", "started");
         return Service.START_STICKY;
     }
 
@@ -63,7 +63,7 @@ public class HarvestService extends Service {
     }
 
     private void letTheUserKnow() {
-        Log.i("HarvestService", "letTheUserKnow");
+        Log.d("HarvestService", "letTheUserKnow");
         Notification notification = new Notification.Builder(this)
             .setContentTitle("Analytics")
             .setContentText("The service is running")

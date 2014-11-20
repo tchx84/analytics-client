@@ -54,13 +54,13 @@ class HarvestSettings {
    }
 
    public Long getLastReported(){
-       Log.i("HarvestSettings", "getLastReported");
+       Log.d("HarvestSettings", "getLastReported");
        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
        return preferences.getLong("lastReported", 0);
    }
 
    public void setLastReported(Long lastReported){
-       Log.i("HarvestSettings", "setLastReported");
+       Log.d("HarvestSettings", "setLastReported");
        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
        Editor editor = preferences.edit();
        editor.putLong("lastReported", lastReported);
