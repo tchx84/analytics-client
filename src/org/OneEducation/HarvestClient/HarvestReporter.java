@@ -89,6 +89,14 @@ public class HarvestReporter {
        Log.i("HarvestReporter", "reporting");
        lastAttempt = settings.getRealNowSeconds();
 
+       // This check is being done very late so we can decouple time-based
+       // checks in canReport, from content-based checks. This is because
+       // content-based checks require access to disk and waste battery.
+       if (entries.isEmpty()){
+           Log.e("HarvestReporter", "report: nothing to report");
+           return;
+       }
+
        JSONArray json = getJSONReport(entries);
        HarvestReporterTask task = new HarvestReporterTask(context);
        task.execute(json.toString());
