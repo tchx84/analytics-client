@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.lang.String;
 import java.lang.Runnable;
+import java.lang.Long;
 
 import android.os.Handler;
 import android.util.Log;
@@ -32,6 +33,7 @@ import android.content.Context;
 import android.content.ComponentName;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningTaskInfo;
+import android.net.TrafficStats;
 
 import org.OneEducation.HarvestClient.HarvestJournal;
 import org.OneEducation.HarvestClient.HarvestReporter;
@@ -62,6 +64,7 @@ public class HarvestWatcher implements Runnable {
     public void run(){
         Log.d("HarvestWatcher", "run");
         processActivity();
+        processBandwidth();
         persistActivity();
         reportActivity();
         handler.postDelayed(this, HarvestSettings.INTERVAL * 1000L);
@@ -101,6 +104,12 @@ public class HarvestWatcher implements Runnable {
         }
 
         journal.store(packageName);
+    }
+
+    private void processBandwidth() {
+        Long received = TrafficStats.getTotalRxBytes();
+        Long transmitted =  TrafficStats.getTotalTxBytes();
+        Log.d("HarvestWatcher", String.format("processBandwidth: rx(%d), tx(%d)", received, transmitted));
     }
 
     private void reportActivity() {
