@@ -19,15 +19,10 @@
 
 package org.OneEducation.HarvestClient;
 
-import java.lang.System;
-
-import android.R;
 import android.util.Log;
 import android.os.IBinder;
 import android.content.Intent;
-import android.content.Context;
 import android.app.Service;
-import android.app.Notification;
 
 import org.OneEducation.HarvestClient.HarvestWatcher;
 
@@ -41,7 +36,6 @@ public class HarvestService extends Service {
         Log.i("HarvestService", "created");
         watcher = new HarvestWatcher(this);
         watcher.run();
-        letTheUserKnow();
     }
 
     @Override
@@ -59,17 +53,5 @@ public class HarvestService extends Service {
     public void onDestroy() {
         Log.i("HarvestService", "destroyed");
         watcher.stop();
-        stopForeground(true);
-    }
-
-    private void letTheUserKnow() {
-        Log.d("HarvestService", "letTheUserKnow");
-        Notification notification = new Notification.Builder(this)
-            .setContentTitle("Analytics")
-            .setContentText("The service is running")
-            .setSmallIcon(R.drawable.ic_menu_info_details)
-            .setAutoCancel(true)
-            .build();
-        startForeground(1337, notification);
     }
 }
