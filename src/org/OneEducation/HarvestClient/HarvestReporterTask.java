@@ -79,7 +79,7 @@ class HarvestReporterTask extends AsyncTask<String, Void, Boolean> {
        request.setHeader("Content-type", "application/json");
 
        BasicResponseHandler responseHandler = new BasicResponseHandler();
-       DefaultHttpClient httpClient = getSecuredHttpClient();
+       DefaultHttpClient httpClient = new DefaultHttpClient();
 
        if (httpClient == null) {
            Log.e("HarvestReporterTask", "doInBackground: no secured client");
