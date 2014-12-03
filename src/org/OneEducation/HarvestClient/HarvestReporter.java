@@ -20,9 +20,12 @@
 package org.OneEducation.HarvestClient;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.lang.Long;
 import java.lang.String;
 import java.lang.Boolean;
+import java.lang.Integer;
+import java.lang.System;
 import java.math.BigInteger;
 
 import java.security.MessageDigest;
@@ -124,6 +127,20 @@ public class HarvestReporter {
         return hash;
     }
 
+    private List<String> getBuildInfo() {
+        List info = new ArrayList<String>();
+
+        // send this in the first report only
+        if (settings.getLastReported() == 0) {
+            info.add(Build.MODEL);
+            info.add(Build.DISPLAY);
+            info.add(Integer.toString(Build.VERSION.SDK_INT));
+            info.add(System.getProperty("os.version"));
+        }
+
+        return info;
+    }
+
     private JSONArray getJSONReport(List<HarvestEntry> entries) {
         JSONObject map = new JSONObject();
 
@@ -147,9 +164,15 @@ public class HarvestReporter {
             sessions.put(session);
         }
 
+        JSONArray info = new JSONArray();
+        for (String description : (List<String>) getBuildInfo()) {
+            info.put(description);
+        }
+
         JSONArray array = new JSONArray();
         array.put(getUID());
         array.put(map);
+        array.put(info);
 
         return array;
     }
