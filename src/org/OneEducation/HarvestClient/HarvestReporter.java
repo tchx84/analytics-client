@@ -45,6 +45,7 @@ import org.json.JSONException;
 import org.OneEducation.HarvestClient.HarvestSettings;
 import org.OneEducation.HarvestClient.HarvestEntry;
 import org.OneEducation.HarvestClient.HarvestReporterTask;
+import org.OneEducation.HarvestClient.HarvestTrafficEntry;
 
 public class HarvestReporter {
 
@@ -88,19 +89,19 @@ public class HarvestReporter {
         return true;
     }
 
-    public void report(List<HarvestEntry> entries) {
+    public void report(List<HarvestEntry> entries, List<HarvestTrafficEntry> trafficEntries) {
        Log.i("HarvestReporter", "reporting");
        lastAttempt = settings.getRealNowSeconds();
 
        // This check is being done very late so we can decouple time-based
        // checks in canReport, from content-based checks. This is because
        // content-based checks require access to disk and waste battery.
-       if (entries.isEmpty()){
+       if (entries.isEmpty() && trafficEntries.isEmpty()){
            Log.e("HarvestReporter", "report: nothing to report");
            return;
        }
 
-       JSONArray json = getJSONReport(entries);
+       JSONArray json = getJSONReport(entries, trafficEntries);
        HarvestReporterTask task = new HarvestReporterTask(context);
        task.execute(json.toString());
        previousTask = task;
@@ -141,7 +142,7 @@ public class HarvestReporter {
         return info;
     }
 
-    private JSONArray getJSONReport(List<HarvestEntry> entries) {
+    private JSONArray getJSONReport(List<HarvestEntry> entries, List<HarvestTrafficEntry> trafficEntries) {
         JSONObject map = new JSONObject();
 
         for (HarvestEntry entry : (List<HarvestEntry>) entries) {
@@ -164,6 +165,16 @@ public class HarvestReporter {
             sessions.put(session);
         }
 
+        JSONArray traffic = new JSONArray();
+        for (HarvestTrafficEntry trafficEntry : trafficEntries) {
+            JSONArray trafficSession = new JSONArray();
+            trafficSession.put(trafficEntry.started);
+            trafficSession.put(trafficEntry.received);
+            trafficSession.put(trafficEntry.transmitted);
+
+            traffic.put(trafficSession);
+        }
+
         JSONArray info = new JSONArray();
         for (String description : (List<String>) getBuildInfo()) {
             info.put(description);
@@ -172,6 +183,7 @@ public class HarvestReporter {
         JSONArray array = new JSONArray();
         array.put(getUID());
         array.put(map);
+        array.put(traffic);
         array.put(info);
 
         return array;

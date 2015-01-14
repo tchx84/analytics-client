@@ -26,8 +26,6 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.TimeZone;
 
 import android.util.Log;
 import android.content.Context;
@@ -35,6 +33,7 @@ import android.content.Context;
 import org.OneEducation.HarvestClient.HarvestSettings;
 import org.OneEducation.HarvestClient.HarvestStore;
 import org.OneEducation.HarvestClient.HarvestEntry;
+
 
 public class HarvestJournal {
 
@@ -55,22 +54,6 @@ public class HarvestJournal {
         lastStored = settings.getRealNowSeconds();
     }
 
-    private Long getStarted(Long timestamp) {
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-
-        // if null use today's date, otherwise given timestamp
-        if (timestamp != null) {
-            calendar.setTimeInMillis(timestamp * 1000L);
-        }
-
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-
-        return calendar.getTimeInMillis() / 1000L;
-    }
-
     public void store(String packageName) {
         Log.d("HarvestJournal", "store");
         HashMap sessions;
@@ -82,7 +65,7 @@ public class HarvestJournal {
             data.put(packageName, sessions);
         }
 
-        Long started = getStarted(null);
+        Long started = settings.getStarted(null);
         HarvestEntry entry;
 
         if (sessions.containsKey(started)) {
@@ -139,6 +122,7 @@ public class HarvestJournal {
     public List<HarvestEntry> getEntries() {
         Log.d("HarvestJournal", "getEntries");
         dump();
-        return storage.retrieve(getStarted(settings.getLastReported()));
+        Long started = settings.getStarted(settings.getLastReported());
+        return storage.retrieve(started);
     }
 }
