@@ -21,6 +21,8 @@ package org.OneEducation.HarvestClient;
 
 import java.lang.Long;
 import java.lang.System;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 import android.os.SystemClock;
 import android.util.Log;
@@ -36,6 +38,8 @@ class HarvestSettings {
    static final Long PERSIST = 300L;
    static final Long ATTEMPT_INTERVAL = 1800L;
    static final Long REPORT_INTERVAL = 518400L;
+   static final Long TRAFFIC_INTERVAL = 180L;
+   static final Long TRAFFIC_PERSIST = 300L;
    static final String SERVER = "https://192.168.0.12/analytics/report";
    static final String KEY = "analytics";
 
@@ -65,5 +69,21 @@ class HarvestSettings {
        Editor editor = preferences.edit();
        editor.putLong("lastReported", lastReported);
        editor.commit();
+   }
+
+   public Long getStarted(Long timestamp) {
+       Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+
+       // if null use today's date, otherwise given timestamp
+       if (timestamp != null) {
+            calendar.setTimeInMillis(timestamp * 1000L);
+       }
+
+       calendar.set(Calendar.HOUR_OF_DAY, 0);
+       calendar.set(Calendar.MINUTE, 0);
+       calendar.set(Calendar.SECOND, 0);
+       calendar.set(Calendar.MILLISECOND, 0);
+
+       return calendar.getTimeInMillis() / 1000L;
    }
 }

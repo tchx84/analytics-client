@@ -20,6 +20,7 @@
 package org.OneEducation.HarvestClient;
 
 import java.lang.Integer;
+import java.lang.Long;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,7 +37,9 @@ import android.app.ActivityManager.RunningTaskInfo;
 import org.OneEducation.HarvestClient.HarvestJournal;
 import org.OneEducation.HarvestClient.HarvestReporter;
 import org.OneEducation.HarvestClient.HarvestEntry;
-
+import org.OneEducation.HarvestClient.HarvestTrafficStats;
+import org.OneEducation.HarvestClient.HarvestTrafficJournal;
+import org.OneEducation.HarvestClient.HarvestTrafficEntry;
 
 public class HarvestWatcher implements Runnable {
 
@@ -46,6 +49,7 @@ public class HarvestWatcher implements Runnable {
                                                                          "com.android.settings",
                                                                          "com.android.systemui"));
     private HarvestJournal journal;
+    private HarvestTrafficJournal trafficJournal;
     private HarvestReporter reporter;
     private Handler handler;
     private Context context;
@@ -57,13 +61,28 @@ public class HarvestWatcher implements Runnable {
         reporter = new HarvestReporter(_context);
         handler =  new Handler();
         context = _context;
+
+        // discard initial values because we can not make any
+        // assumptions regarding whether or not these values
+        // were accounted before. Only measure traffic since
+        // the service started.
+        HarvestTrafficStats stats = new HarvestTrafficStats();
+        Long initialRx = stats.getTotalRxBytes();
+        Long initialTx = stats.getTotalTxBytes();
+        trafficJournal = new HarvestTrafficJournal(_context, initialRx, initialTx);
     }
 
     public void run(){
         Log.d("HarvestWatcher", "run");
+
         processActivity();
         persistActivity();
+
+        processTraffic();
+        persistTraffic();
+
         reportActivity();
+
         handler.postDelayed(this, HarvestSettings.INTERVAL * 1000L);
     }
 
@@ -71,6 +90,7 @@ public class HarvestWatcher implements Runnable {
         Log.d("HarvestWatcher", "stop");
         handler.removeCallbacks(this);
         journal.dump();
+        trafficJournal.dump();
     }
 
     private void persistActivity() {
@@ -103,11 +123,40 @@ public class HarvestWatcher implements Runnable {
         journal.store(packageName);
     }
 
+    private void persistTraffic() {
+        if (trafficJournal.canDump()) {
+            trafficJournal.dump();
+        }
+    }
+
+    private void processTraffic() {
+        Log.d("HarvestWatcher", "processTraffic");
+
+        if (!trafficJournal.canStore()) {
+            return;
+        }
+
+        HarvestTrafficStats stats = new HarvestTrafficStats();
+        Long rx = stats.getTotalRxBytes();
+        Long tx = stats.getTotalTxBytes();
+
+        Log.d("HarvestWatcher", rx.toString());
+        Log.d("HarvestWatcher", tx.toString());
+
+        if (rx == -1L || tx == -1L) {
+            Log.e("HarvestWatcher", "processTraffic: cannot get stats");
+            return;
+        }
+
+        trafficJournal.store(rx, tx);
+    }
+
     private void reportActivity() {
         Log.d("HarvestWatcher", "reportActivity");
         if (reporter.canReport()) {
+            List<HarvestTrafficEntry> trafficEntries = trafficJournal.getEntries();
             List<HarvestEntry> entries = journal.getEntries();
-            reporter.report(entries);
+            reporter.report(entries, trafficEntries);
         }
     }
 }
