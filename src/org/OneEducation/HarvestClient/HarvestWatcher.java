@@ -35,11 +35,13 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.RunningTaskInfo;
 
 import org.OneEducation.HarvestClient.HarvestJournal;
+import org.OneEducation.HarvestClient.HarvestJournalNative;
 import org.OneEducation.HarvestClient.HarvestReporter;
 import org.OneEducation.HarvestClient.HarvestEntry;
 import org.OneEducation.HarvestClient.HarvestTrafficStats;
 import org.OneEducation.HarvestClient.HarvestTrafficJournal;
 import org.OneEducation.HarvestClient.HarvestTrafficEntry;
+import org.OneEducation.HarvestClient.HarvestSettings;
 
 public class HarvestWatcher implements Runnable {
 
@@ -49,6 +51,7 @@ public class HarvestWatcher implements Runnable {
                                                                          "com.android.settings",
                                                                          "com.android.systemui"));
     private HarvestJournal journal;
+    private HarvestJournalNative journalNative;
     private HarvestTrafficJournal trafficJournal;
     private HarvestReporter reporter;
     private Handler handler;
@@ -57,10 +60,18 @@ public class HarvestWatcher implements Runnable {
     public HarvestWatcher(Context _context){
         Log.d("HarvestWatcher", "created");
 
-        journal = new HarvestJournal(_context);
         reporter = new HarvestReporter(_context);
         handler =  new Handler();
         context = _context;
+
+         // since Lollipop there is a native usage stats API
+         // therefore, use it if available, instead of our
+         // custom made tracker.
+         if (HarvestSettings.hasNativeStats()) {
+             journalNative = new HarvestJournalNative(context);
+         } else {
+             journal = new HarvestJournal(context);
+         }
 
         // discard initial values because we can not make any
         // assumptions regarding whether or not these values
@@ -75,8 +86,13 @@ public class HarvestWatcher implements Runnable {
     public void run(){
         Log.d("HarvestWatcher", "run");
 
-        processActivity();
-        persistActivity();
+        // if the native usage stats is available, then
+        // we dont need run our custom usage tracker, only
+        // run it when needed.
+        if (!HarvestSettings.hasNativeStats()) {
+            processActivity();
+            persistActivity();
+        }
 
         processTraffic();
         persistTraffic();
@@ -89,8 +105,14 @@ public class HarvestWatcher implements Runnable {
     public void stop(){
         Log.d("HarvestWatcher", "stop");
         handler.removeCallbacks(this);
-        journal.dump();
         trafficJournal.dump();
+
+        // if native usage stats are available,then
+        // we don't need to dump anything. Specially
+        // since its empty (null).
+        if (!HarvestSettings.hasNativeStats()) {
+            journal.dump();
+        }
     }
 
     private void persistActivity() {
@@ -155,7 +177,17 @@ public class HarvestWatcher implements Runnable {
         Log.d("HarvestWatcher", "reportActivity");
         if (reporter.canReport()) {
             List<HarvestTrafficEntry> trafficEntries = trafficJournal.getEntries();
-            List<HarvestEntry> entries = journal.getEntries();
+
+            // get usage stats from the native API if available,
+            // if not available, then get them from our custom
+            // journal.
+            List<HarvestEntry> entries;
+            if (HarvestSettings.hasNativeStats()) {
+                entries = journalNative.getEntries();
+            } else {
+                entries = journal.getEntries();
+            }
+
             reporter.report(entries, trafficEntries);
         }
     }

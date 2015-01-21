@@ -19,11 +19,13 @@
 
 package org.OneEducation.HarvestClient;
 
+import java.lang.Boolean;
 import java.lang.Long;
 import java.lang.System;
 import java.util.Calendar;
 import java.util.TimeZone;
 
+import android.os.Build;
 import android.os.SystemClock;
 import android.util.Log;
 import android.content.Context;
@@ -85,5 +87,9 @@ class HarvestSettings {
        calendar.set(Calendar.MILLISECOND, 0);
 
        return calendar.getTimeInMillis() / 1000L;
+   }
+
+   static public Boolean hasNativeStats() {
+      return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
    }
 }

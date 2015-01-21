@@ -22,6 +22,7 @@ package org.OneEducation.HarvestClient;
 import android.app.Activity;
 import android.os.Bundle;
 import android.content.Intent;
+import android.provider.Settings;
 
 import org.OneEducation.HarvestClient.HarvestService;
 
@@ -35,10 +36,17 @@ public class HarvestActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         launchService();
+        launchPermissions();
     }
 
     private void launchService(){
         Intent serviceIntent = new Intent(this, HarvestService.class);
         startService(serviceIntent);
+    }
+
+    private void launchPermissions(){
+        Intent permissionsIntent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
+        startActivity(permissionsIntent);
+
     }
 }
