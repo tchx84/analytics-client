@@ -31,8 +31,9 @@ import android.util.Log;
 class HarvestTrafficStats {
 
     static String TAG = "HarvestTrafficStats";
-    static String PROC_STATS_START = " wlan0";
-    static String PROC_STATS_SEPARATOR = " +";
+    static String PROC_STATS_START = "^(\\s+)(\\w+):.*";
+    static String PROC_STATS_SKIP = "^(\\s+)(lo):.*";
+    static String PROC_STATS_SEPARATOR = "\\s+";
     static String PROC_STATS_PATH = "/proc/net/dev";
 
     private Long currentRx;
@@ -51,11 +52,18 @@ class HarvestTrafficStats {
             String line;
             BufferedReader ProcNetDev = new BufferedReader(new FileReader(PROC_STATS_PATH));
 
+           currentRx = 0L;
+           currentTx = 0L;
+
            while ((line = ProcNetDev.readLine()) != null) {
-               if (line.startsWith(PROC_STATS_START)) {
+               if (line.matches(PROC_STATS_SKIP)) {
+                   continue;
+               }
+
+               if (line.matches(PROC_STATS_START)) {
                    String[] stats = line.split(PROC_STATS_SEPARATOR);
-                   currentRx = Long.parseLong(stats[2], 10);
-                   currentTx = Long.parseLong(stats[10], 10);
+                   currentRx += Long.parseLong(stats[2], 10);
+                   currentTx += Long.parseLong(stats[10], 10);
                }
            }
 
