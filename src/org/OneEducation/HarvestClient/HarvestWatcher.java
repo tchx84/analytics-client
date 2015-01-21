@@ -22,8 +22,6 @@ package org.OneEducation.HarvestClient;
 import java.lang.Integer;
 import java.lang.Long;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.lang.String;
 import java.lang.Runnable;
 
@@ -46,10 +44,6 @@ import org.OneEducation.HarvestClient.HarvestSettings;
 public class HarvestWatcher implements Runnable {
 
     private Integer MAX_TASKS = 1;
-    private List<String> BLACKLIST = new ArrayList<String>(Arrays.asList("android",
-                                                                         "com.android.launcher",
-                                                                         "com.android.settings",
-                                                                         "com.android.systemui"));
     private HarvestJournal journal;
     private HarvestJournalNative journalNative;
     private HarvestTrafficJournal trafficJournal;
@@ -136,7 +130,7 @@ public class HarvestWatcher implements Runnable {
         String packageName = activity.flattenToString();
         String applicationLabel = "unknown";
 
-        for (String blacklisted: BLACKLIST) {
+        for (String blacklisted: HarvestSettings.BLACKLIST) {
             if (packageName.startsWith(blacklisted)){
                 return;
             }

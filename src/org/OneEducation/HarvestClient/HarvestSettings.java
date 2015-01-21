@@ -24,6 +24,9 @@ import java.lang.Long;
 import java.lang.System;
 import java.util.Calendar;
 import java.util.TimeZone;
+import java.util.List;
+import java.util.Arrays;
+import java.util.ArrayList;
 
 import android.os.Build;
 import android.os.SystemClock;
@@ -44,7 +47,11 @@ class HarvestSettings {
    static final Long TRAFFIC_PERSIST = 300L;
    static final String SERVER = "https://192.168.0.12/analytics/report";
    static final String KEY = "analytics";
-
+   static final List<String> BLACKLIST = new ArrayList<String>(Arrays.asList("android",
+                                                                             "com.android.launcher",
+                                                                             "com.android.settings",
+                                                                             "com.android.systemui",
+                                                                             "com.android.development"));
    private Context context;
 
    public HarvestSettings(Context _context){

@@ -20,6 +20,8 @@
 package org.OneEducation.HarvestClient;
 
 import java.lang.Long;
+import java.lang.Boolean;
+import java.lang.String;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -53,12 +55,26 @@ class HarvestJournalNative {
         List<UsageStats> stats = manager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, since, to);
 
         for (UsageStats stat: stats) {
-           HarvestEntry entry = new HarvestEntry(stat.getPackageName());
+            String packageName = stat.getPackageName();
+
+            Boolean inBlacklist = false;
+            for (String blacklisted: settings.BLACKLIST) {
+                if (packageName.startsWith(blacklisted)){
+                    inBlacklist = true;
+                    break;
+                }
+            }
+
+           if (inBlacklist){
+               continue;
+           }
+
+           HarvestEntry entry = new HarvestEntry(packageName);
            entry.started = stat.getFirstTimeStamp() / 1000L;
            entry.duration = stat.getTotalTimeInForeground() / 1000L;
            entries.add(entry);
 
-           String message = String.format("getEntries: %s %s %s", entry.packageName, entry.started, entry.duration);
+           String message = String.format("getEntries: %s %s %s", packageName, entry.started, entry.duration);
            Log.d("HarvestJournalNative", message);
         }
 
