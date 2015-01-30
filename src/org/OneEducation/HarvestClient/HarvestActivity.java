@@ -19,26 +19,62 @@
 
 package org.OneEducation.HarvestClient;
 
+import java.lang.Boolean;
+
 import android.app.Activity;
+import android.app.AppOpsManager;
 import android.os.Bundle;
 import android.content.Intent;
+import android.provider.Settings;
+import android.util.Log;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 
 import org.OneEducation.HarvestClient.HarvestService;
 
 
 public class HarvestActivity extends Activity
 {
-    /** Called when the activity is first created. */
+    private String TAG = "HarvestActivity";
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         launchService();
+        launchPermissions();
     }
 
     private void launchService(){
         Intent serviceIntent = new Intent(this, HarvestService.class);
         startService(serviceIntent);
+    }
+
+    private void launchPermissions(){
+        if (needPermissions()){
+            Intent permissionsIntent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
+            startActivity(permissionsIntent);
+        } else {
+            Log.d(TAG, "already has permissions");
+        }
+    }
+
+    private Boolean needPermissions(){
+        try {
+            PackageManager packageManager = this.getPackageManager();
+            ApplicationInfo applicationInfo = packageManager.getApplicationInfo(this.getPackageName(), 0);
+
+            AppOpsManager appOpsManager = (AppOpsManager) this.getSystemService(Context.APP_OPS_SERVICE);
+            int ops = appOpsManager.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS,
+                                                   applicationInfo.uid,
+                                                   applicationInfo.packageName);
+
+            return  (ops != AppOpsManager.MODE_ALLOWED);
+        } catch (NameNotFoundException e) {
+            return true;
+        }
     }
 }
