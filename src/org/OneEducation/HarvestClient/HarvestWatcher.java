@@ -49,7 +49,13 @@ public class HarvestWatcher implements Runnable {
     private List<String> BLACKLIST = new ArrayList<String>(Arrays.asList("android",
                                                                          "com.android.launcher",
                                                                          "com.android.settings",
-                                                                         "com.android.systemui"));
+                                                                         "com.android.systemui",
+                                                                         "com.android.provision",
+                                                                         "com.android.vending",
+                                                                         "com.android.packageinstaller",
+                                                                         "com.android.documentsui",
+                                                                         "com.google.android.setupwizard",
+                                                                         "com.google.android.gsf.login"));
     private HarvestJournal journal;
     private HarvestTrafficJournal trafficJournal;
     private HarvestReporter reporter;
