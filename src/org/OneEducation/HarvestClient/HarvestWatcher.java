@@ -28,6 +28,7 @@ import java.lang.String;
 import java.lang.Runnable;
 
 import android.os.Handler;
+import android.os.Build;
 import android.util.Log;
 import android.content.Context;
 import android.content.ComponentName;
@@ -40,6 +41,7 @@ import org.OneEducation.HarvestClient.HarvestEntry;
 import org.OneEducation.HarvestClient.HarvestTrafficStats;
 import org.OneEducation.HarvestClient.HarvestTrafficJournal;
 import org.OneEducation.HarvestClient.HarvestTrafficEntry;
+import org.OneEducation.HarvestClient.HarvestLollipopTasks;
 
 public class HarvestWatcher implements Runnable {
 
@@ -101,18 +103,32 @@ public class HarvestWatcher implements Runnable {
 
     private void processActivity(){
         Log.d("HarvestWatcher", "processActivity");
-        ActivityManager activityManager = (ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
 
-        List<RunningTaskInfo> tasks = activityManager.getRunningTasks(MAX_TASKS);
-        if (tasks.isEmpty()) {
-            Log.d("HarvestWatcher", "no task were found");
-            return;
+        String packageName;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+
+           HarvestLollipopTasks tasks = new HarvestLollipopTasks(context);
+           packageName = tasks.getActiveTask();
+
+           if (packageName == null) {
+              Log.d("HarvestWatcher", "no lollipop task was found");
+              return;
+           }
+
+        } else {
+            ActivityManager activityManager = (ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
+            List<RunningTaskInfo> tasks = activityManager.getRunningTasks(MAX_TASKS);
+
+            if (tasks.isEmpty()) {
+                Log.d("HarvestWatcher", "no task were found");
+                return;
+            }
+
+            RunningTaskInfo task = tasks.get(0);
+            ComponentName activity = task.baseActivity;
+            packageName = activity.flattenToString();
         }
-
-        RunningTaskInfo task = tasks.get(0);
-        ComponentName activity = task.baseActivity;
-        String packageName = activity.flattenToString();
-        String applicationLabel = "unknown";
 
         for (String blacklisted: BLACKLIST) {
             if (packageName.startsWith(blacklisted)){
